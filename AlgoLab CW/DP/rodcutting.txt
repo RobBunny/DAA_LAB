@@ -1,0 +1,43 @@
+package DP;
+
+import java.util.*;
+
+class Pair {
+    int length;
+    int price;
+
+    Pair(int length, int price) {
+        this.length = length;
+        this.price = price;
+    }
+}
+
+public class test {
+    // Rod cutting problem using dynamic programming
+    public static int rodcutting(Pair[] arr, int n, int N, int[][] dp) {
+        if(n == 0 || N == 0) return 0;
+        if(dp[n][N] != 0) return dp[n][N];
+        int opt1 = 0;
+        if(arr[n-1].length <= N) {
+            opt1 = arr[n-1].price + rodcutting(arr, n, N - arr[n-1].length, dp);
+        }
+        int opt2 = rodcutting(arr, n - 1, N, dp);
+        return dp[n][N] = Math.max(opt1, opt2);
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        Pair[] arr = new Pair[n];
+        for (int i = 0; i < n; i++) {
+            int length = sc.nextInt();
+            int price = sc.nextInt();
+            arr[i] = new Pair(length, price);
+        }
+        int N = sc.nextInt(); // Total length of the rod
+        int[][] dp = new int[n + 1][N + 1];
+        int ans = rodcutting(arr, n, N, dp);
+        System.out.println(ans);
+        sc.close();
+    }
+}

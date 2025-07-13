@@ -1,0 +1,48 @@
+package DP;
+
+import java.util.*;
+
+class Pair {
+    int length;
+    int price;
+
+    Pair(int length, int price) {
+        this.length = length;
+        this.price = price;
+    }
+}
+
+public class test {
+    // Rock Climbing Problem using dynamic programming
+    public static int rockclimbing(int arr[][], int row, int col, int n, int m, int dp[][]) {
+        if(col < 0 || col > m-1) return Integer.MAX_VALUE;
+        if(row == 0) return 0;
+        if(dp[row][col] != -1) return dp[row][col];
+        int up = rockclimbing(arr, row - 1, col, n, m, dp);
+        int left = rockclimbing(arr, row - 1, col - 1, n, m, dp);
+        int right = rockclimbing(arr, row - 1, col + 1, n, m, dp);
+        return dp[row][col] = arr[row-1][col] + Math.min(up, Math.min(left, right));    
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int m = sc.nextInt();
+        int arr[][] = new int[n][m];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                arr[i][j] = sc.nextInt();
+            }
+        }
+        int dp[][] = new int[n+1][m+2];
+        for (int i = 0; i < n+1; i++) {
+            Arrays.fill(dp[i], -1);
+        }
+        int ans = Integer.MAX_VALUE;
+        for (int col = 0; col < m; col++) {
+            ans = Math.min(ans, rockclimbing(arr, n, col, n, m, dp));
+        }
+        System.out.println(ans);
+        sc.close();
+    }
+}

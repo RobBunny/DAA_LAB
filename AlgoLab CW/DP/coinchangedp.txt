@@ -1,0 +1,45 @@
+package DP;
+
+import java.util.*;
+
+class Pair {
+    int length;
+    int price;
+
+    Pair(int length, int price) {
+        this.length = length;
+        this.price = price;
+    }
+}
+
+public class test {
+    // Coin Change Problem using dynamic programming
+    public static int coinchange(int arr[], int n, int amount, int[][] dp) {
+        if(amount == 0) return 0;
+        if(n == 0) return Integer.MAX_VALUE - 1;        
+        if(dp[n][amount] != -1) return dp[n][amount];
+        int opt1 = Integer.MAX_VALUE - 1;
+        if(arr[n-1] <= amount) {
+            opt1 = coinchange(arr, n, amount - arr[n-1], dp);
+            if(opt1 != Integer.MAX_VALUE - 1) opt1 += 1;
+        }
+        int opt2 = coinchange(arr, n-1, amount, dp);
+        return dp[n][amount] = Math.min(opt1, opt2);
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int[] coins = new int[n];
+        for (int i = 0; i < n; i++) {
+            coins[i] = sc.nextInt();
+        }
+        int amount = sc.nextInt();
+        int[][] dp = new int[n + 1][amount + 1];
+        for (int i = 0; i <= n; i++) {
+            Arrays.fill(dp[i], -1);
+        }
+        System.out.println(coinchange(coins, n, amount, dp));
+        sc.close();
+    }
+}
