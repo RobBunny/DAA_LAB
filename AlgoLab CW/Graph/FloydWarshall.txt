@@ -1,0 +1,77 @@
+package Graph;
+import java.util.*;
+
+class GraphBuild{
+    int vertices;
+    int[][] adjMatrix;
+    GraphBuild(int vertices){
+        this.vertices = vertices;
+        adjMatrix = new int[vertices][vertices];
+        for(int i=0;i<vertices;i++) {
+            Arrays.fill(adjMatrix[i], Integer.MAX_VALUE);
+            adjMatrix[i][i] = 0;
+        }
+    }
+
+    void addEdge(int u, int v, int w){
+        adjMatrix[u][v] = w;
+    }
+
+    void FloydWarshall(boolean isOneIndex) {
+        int start = isOneIndex ? 1 : 0;
+        for(int via=start; via<vertices; via++) {
+            for(int i=start; i<vertices; i++) {
+                for(int j=start; j<vertices; j++) {
+                    if(adjMatrix[i][via] != Integer.MAX_VALUE && adjMatrix[via][j] != Integer.MAX_VALUE) {
+                        adjMatrix[i][j] = Math.min(adjMatrix[i][j], adjMatrix[i][via] + adjMatrix[via][j]);
+                    }
+                }
+            }
+        }
+
+        for(int i=start; i<vertices; i++) {
+            if(adjMatrix[i][i] < 0) return;
+        }
+
+        for(int i=start; i<vertices; i++) {
+            for(int j=start; j<vertices; j++) {
+                if(adjMatrix[i][j] == Integer.MAX_VALUE) adjMatrix[i][j] = -1;
+            }
+        }
+    }
+
+    void printGraph(boolean isOneIndex) {
+        int start = isOneIndex ? 1 : 0;
+        for(int i=start; i<vertices; i++) {
+            for(int j=start; j<vertices; j++) {
+                System.out.print(adjMatrix[i][j] + " ");
+            }
+            System.out.println();
+        }
+    }
+}
+
+public class test{
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int m = sc.nextInt();
+        int temp[][] = new int[m][3];
+        boolean isOneIndex = true;
+        for(int i=0; i<m; i++) {
+            int u = sc.nextInt();
+            int v = sc.nextInt();
+            int w = sc.nextInt();
+            if(u==0 || v==0) isOneIndex = false;
+            temp[i][0] = u;
+            temp[i][1] = v;
+            temp[i][2] = w;
+        }
+        int size = isOneIndex ? n+1 : n;
+        GraphBuild g = new GraphBuild(size);
+        for(int edge[] : temp) g.addEdge(edge[0], edge[1], edge[2]);
+        g.FloydWarshall(isOneIndex);
+        g.printGraph(isOneIndex);
+        sc.close();
+    }
+}

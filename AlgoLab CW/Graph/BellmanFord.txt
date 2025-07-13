@@ -1,0 +1,68 @@
+package Graph;
+import java.util.*;
+
+class GraphBuild{
+    int vertices;
+    ArrayList<int[]> adjList;
+    GraphBuild(int vertices) {
+        this.vertices = vertices;
+        this.adjList = new ArrayList<>();
+    }
+
+    void addEdge (int u, int v, int w) {
+        adjList.add(new int[]{u, v, w});
+    }
+
+    void BellmanFord(int s) {
+        int[] distance = new int[vertices];
+        for(int i=0; i<vertices; i++) distance[i] = Integer.MAX_VALUE;
+        distance[s] = 0;
+        for(int i=0; i<vertices-1; i++) {
+            for(int neighbour[] : adjList) {
+                int n1 = neighbour[0];
+                int n2 = neighbour[1];
+                int wt = neighbour[2];
+                if(distance[n1] != Integer.MAX_VALUE && distance[n1] + wt < distance[n2]) {
+                    distance[n2] = distance[n1] + wt;
+                }
+            }
+        }
+        //nth iteration
+        for(int neighbour[] : adjList) {
+            int n1 = neighbour[0];
+            int n2 = neighbour[1];
+            int wt = neighbour[2];
+            if(distance[n1] != Integer.MAX_VALUE && distance[n1] + wt < distance[n2]) {
+                Arrays.fill(distance, -1);
+            }
+        }
+        for(int i=0; i<vertices; i++) {
+            System.out.println("Distance from " + s + " to " + i + " is " + distance[i]);
+        }
+    }
+}
+
+public class test{
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int m = sc.nextInt();
+        int tempEdges [][] = new int[m][3];
+        boolean isOneIndex = true;
+        for(int i=0; i<m; i++) {
+            int u = sc.nextInt();
+            int v = sc.nextInt();
+            int wt = sc.nextInt();
+            if(u==0 || v==0) isOneIndex = false;
+            tempEdges[i][0] = u;
+            tempEdges[i][1] = v;
+            tempEdges[i][2] = wt;
+        }
+        int size = isOneIndex ? n+1 : n;
+        GraphBuild g = new GraphBuild(size);
+        for(int edge[] : tempEdges) g.addEdge(edge[0], edge[1], edge[2]);
+        int source = sc.nextInt();
+        g.BellmanFord(source);
+        sc.close();
+    }
+}

@@ -1,0 +1,73 @@
+package Graph;
+import java.util.*;
+
+class DisjointSet {
+    ArrayList<Integer> rank = new ArrayList<>();
+    ArrayList<Integer> parent = new ArrayList<>();
+    ArrayList<Integer> size = new ArrayList<>();
+    DisjointSet(int n) {
+        for(int i=0; i<n; i++) {
+            rank.add(0);
+            size.add(1);
+            parent.add(i);
+        }
+    }
+
+    public int findUltPar(int node) {
+        if(node == parent.get(node)) return node;
+        int ulp = findUltPar(parent.get(node));
+        parent.set(node, ulp);
+        return parent.get(node);
+    }
+
+    public void unionbyRank (int u, int v) {
+        int ulp_u = findUltPar(u);
+        int ulp_v = findUltPar(v);
+        if(ulp_u == ulp_v) return;
+        if(rank.get(ulp_u) > rank.get(ulp_v)) parent.set(ulp_v, ulp_u);
+        else if(rank.get(ulp_v) > rank.get(ulp_u)) parent.set(ulp_u, ulp_v);
+        else {
+            parent.set(ulp_v, ulp_u);
+            int rankUlp = rank.get(ulp_u);
+            rank.set(ulp_u, rankUlp+1); 
+        }  
+    }
+
+    public void unionbySize (int u, int v) {
+        int ulp_u = findUltPar(u);
+        int ulp_v = findUltPar(v);
+        if(ulp_u == ulp_v) return;
+        if(size.get(ulp_u) > size.get(ulp_v)) {
+            parent.set(ulp_v, ulp_u);
+            size.set(ulp_u, size.get(ulp_u)+size.get(ulp_v));
+        }
+        else {
+            parent.set(ulp_u, ulp_v);
+            size.set(ulp_v, size.get(ulp_u)+size.get(ulp_v));
+        }
+    }
+}
+
+public class test {
+    public static void main (String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int m = sc.nextInt();
+        int tempNodes[][] = new int[m][2];
+        boolean isOneIdx = true;
+        for(int i=0; i<m; i++) {
+            int a = sc.nextInt();
+            int b = sc.nextInt();
+            if(a==0 || b==0) isOneIdx = false;
+            tempNodes[i][0] = a;
+            tempNodes[i][1] = b;
+        }
+        int size = isOneIdx ? n+1 : n;
+        DisjointSet d = new DisjointSet(size);
+        for(int node[] : tempNodes) d.unionbySize(node[0], node[1]);
+        int u = sc.nextInt();
+        int v = sc.nextInt();
+        if(d.findUltPar(u) == d.findUltPar(v)) System.out.println("Same Parent");
+        sc.close();
+    }
+}

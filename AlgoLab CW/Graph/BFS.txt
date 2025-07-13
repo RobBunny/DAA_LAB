@@ -1,0 +1,74 @@
+
+package Graph;
+import java.util.*;
+//import java.io.*;
+
+class GraphBuild {
+    private int vertices;
+    ArrayList<List<Integer>> adjList;
+    GraphBuild(int vertices) {
+        this.vertices = vertices;
+        this.adjList = new ArrayList<>(vertices);
+        for(int i=0; i<vertices; i++) adjList.add(new ArrayList<>());
+    }
+
+    void addEdge(int u, int v) {
+        adjList.get(u).add(v);
+        adjList.get(v).add(u);
+    }
+
+    void printGraph(boolean isOneIndex) {
+        int start = isOneIndex ? 1 : 0;
+        for(int i=start; i<vertices; i++) {
+            System.out.print(i + " -> ");
+            for(int j : adjList.get(i)) {
+                System.out.print(j + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    ArrayList<Integer> BFS(int s) {
+        ArrayList<Integer> bfstrav = new ArrayList<>();
+        Queue<Integer> q = new LinkedList<>();
+        boolean[] visited = new boolean[vertices];
+
+        q.add(s);
+        visited[s] = true;
+        while(!q.isEmpty()) {
+            int node = q.poll();
+            bfstrav.add(node);
+            for(int neighbour : adjList.get(node)) {
+                if(!visited[neighbour]) {
+                    q.add(neighbour);
+                    visited[neighbour] = true;
+                }
+            }
+        }
+        return bfstrav;
+    }
+}
+
+public class test {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int m = sc.nextInt();
+        int tempEdges [][] = new int[m][2];
+        boolean isOneIndex = true;
+        for(int i=0; i<m; i++) {
+            int u = sc.nextInt();
+            int v = sc.nextInt();
+            tempEdges[i][0] = u;
+            tempEdges[i][1] = v;
+            if(u==0 || v==0) isOneIndex = false;
+        }
+        int size = isOneIndex ? n+1 : n;
+        GraphBuild g = new GraphBuild(size);
+        for(int edge[] : tempEdges) g.addEdge(edge[0], edge[1]);
+        int source = sc.nextInt();
+        ArrayList<Integer> bfstrav = g.BFS(source);
+        for(int i=0; i<bfstrav.size(); i++) System.out.print(bfstrav.get(i) + " ");
+        sc.close();
+    }
+}

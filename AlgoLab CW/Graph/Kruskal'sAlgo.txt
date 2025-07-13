@@ -1,0 +1,109 @@
+package Graph;
+import java.util.*;
+//import java.io.*;
+
+class DisjointSet {
+    ArrayList<Integer> rank = new ArrayList<>();
+    ArrayList<Integer> parent = new ArrayList<>();
+    ArrayList<Integer> size = new ArrayList<>();
+    DisjointSet(int n) {
+        for(int i=0; i<n; i++) {
+            rank.add(0);
+            size.add(1);
+            parent.add(i);
+        }
+    }
+
+    public int findUltPar(int node) {
+        if(node == parent.get(node)) return node;
+        int ulp = findUltPar(parent.get(node));
+        parent.set(node, ulp);
+        return ulp;
+    }
+
+    public void unionbyRank (int u, int v) {
+        int ulp_u = findUltPar(u);
+        int ulp_v = findUltPar(v);
+        if(ulp_u == ulp_v) return;
+        if(rank.get(ulp_u) > rank.get(ulp_v)) parent.set(ulp_v, ulp_u);
+        else if(rank.get(ulp_v) > rank.get(ulp_u)) parent.set(ulp_u, ulp_v);
+        else {
+            parent.set(ulp_v, ulp_u);
+            int rankUlp = rank.get(ulp_u);
+            rank.set(ulp_u, rankUlp+1); 
+        }  
+    }
+
+    public void unionbySize (int u, int v) {
+        int ulp_u = findUltPar(u);
+        int ulp_v = findUltPar(v);
+        if(ulp_u == ulp_v) return;
+        if(size.get(ulp_u) > size.get(ulp_v)) {
+            parent.set(ulp_v, ulp_u);
+            size.set(ulp_u, size.get(ulp_u)+size.get(ulp_v));
+        }
+        else {
+            parent.set(ulp_u, ulp_v);
+            size.set(ulp_v, size.get(ulp_u)+size.get(ulp_v));
+        }
+    }
+}
+
+class GraphBuild {
+    private int vertices;
+    ArrayList<int[]> adjList;
+    GraphBuild(int vertices) {
+        this.vertices = vertices;
+        this.adjList = new ArrayList<>(vertices);
+    }
+
+    void addEdge(int u, int v, int weight) {
+        adjList.add(new int[]{u, v, weight});
+        adjList.add(new int[]{v, u, weight});
+    }
+    
+    int KruskalAlgo() {
+        Collections.sort(adjList, (x, y) -> x[2] - y[2]);
+        DisjointSet ds = new DisjointSet(vertices);
+        int sum = 0;
+        int count = 0;
+        for(int nodes[] : adjList) {
+            int u = nodes[0];
+            int v = nodes[1];
+            int wt = nodes[2];
+            int ulp_u = ds.findUltPar(u);
+            int ulp_v = ds.findUltPar(v);
+            if(ulp_u == ulp_v) continue;
+            System.out.println(u+"->"+v);
+            ds.unionbyRank(u, v);
+            sum += wt;
+            count++;
+            if(count == vertices-1) break;
+        }
+        return sum;
+    }        
+}
+
+public class test {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int m = sc.nextInt();
+        int tempEdges [][] = new int[m][3];
+        boolean isOneIndex = true;
+        for(int i=0; i<m; i++) {
+            int u = sc.nextInt();
+            int v = sc.nextInt();
+            int wt = sc.nextInt();
+            tempEdges[i][0] = u;
+            tempEdges[i][1] = v;
+            tempEdges[i][2] = wt;
+            if(u==0 || v==0) isOneIndex = false;
+        }
+        int size = isOneIndex ? n+1 : n;
+        GraphBuild g = new GraphBuild(size);
+        for(int edge[] : tempEdges) g.addEdge(edge[0], edge[1], edge[2]);
+        System.out.println(g.KruskalAlgo());
+        sc.close();
+    }
+}

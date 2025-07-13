@@ -1,0 +1,263 @@
+package Graph;
+import java.util.*;
+//import java.io.*;
+
+class GraphBuild {
+    private int vertices;
+    private int timer = 1;
+    ArrayList<List<Integer>> adjList;
+    ArrayList<List<Integer>> transList;
+    GraphBuild(int vertices) {
+        this.vertices = vertices;
+        this.adjList = new ArrayList<>(vertices);
+        this.transList = new ArrayList<>(vertices);
+        for(int i=0; i<vertices; i++) {
+            adjList.add(new ArrayList<>());
+            transList.add(new ArrayList<>());
+        }
+}
+
+    void addEdge(int u, int v) {
+        adjList.get(u).add(v);
+        adjList.get(v).add(u);
+    }
+
+    void addTransEdge(int u, int v) {
+        transList.get(u).add(v);
+        //adjList.get(v).add(u);
+    }
+
+    void printGraph(boolean isOneIndex) {
+        int start = isOneIndex ? 1 : 0;
+        for(int i=start; i<vertices; i++) {
+            System.out.print(i + " -> ");
+            for(int j : adjList.get(i)) {
+                System.out.print(j + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    ArrayList<Integer> BFS(int s) {
+        ArrayList<Integer> bfstrav = new ArrayList<>();
+        Queue<Integer> q = new LinkedList<>();
+        boolean[] visited = new boolean[vertices];
+
+        q.add(s);
+        visited[s] = true;
+        while(!q.isEmpty()) {
+            int node = q.poll();
+            bfstrav.add(node);
+            for(int neighbour : adjList.get(node)) {
+                if(!visited[neighbour]) {
+                    q.add(neighbour);
+                    visited[neighbour] = true;
+                }
+            }
+        }
+        return bfstrav;
+    }
+
+    void DFS(int s, ArrayList<Integer> dfstrav, boolean[] visited) {
+        visited[s] = true;
+        dfstrav.add(s);
+        for(int neighbour : adjList.get(s)) {
+            if(!visited[neighbour]) {
+                DFS(neighbour, dfstrav, visited);
+            }
+        }
+    }
+
+    void DFSforTopoSort(int s, Stack<Integer> sorted, boolean[] visited) {
+        visited[s] = true;
+        for(int neighbour : adjList.get(s)) {
+            if(!visited[neighbour]) {
+                DFSforTopoSort(neighbour, sorted, visited);
+            }
+        }
+        sorted.push(s);
+    }
+
+    ArrayList<Integer> DFSUtil(boolean isOneIndex) {
+        ArrayList<Integer> dfstrav = new ArrayList<>();
+        boolean[] visited = new boolean[vertices];
+        int start = isOneIndex ? 1 : 0;
+        for(int i=start; i<vertices; i++) {
+            if(!visited[i]) DFS(i, dfstrav, visited);
+        }
+        return dfstrav;
+    }
+
+    Stack<Integer> topoSortUtil(boolean isOneIndex) {
+        boolean[] visited = new boolean[vertices];
+        int start = isOneIndex ? 1 : 0;
+        Stack<Integer> sorted = new Stack<>();
+        for(int i=start; i<vertices; i++) {
+            if(!visited[i]) {
+                DFSforTopoSort(i, sorted, visited);
+            }
+        }
+        return sorted;
+    }
+
+    void kahnTopoSort(boolean isOneIndex) {
+        int[] indegree = new int[vertices];
+        int start = isOneIndex ? 1 : 0;
+        for(int i=start; i<vertices; i++) {
+            for(int neighbour : adjList.get(i)) {
+                indegree[neighbour]++;
+            }
+        }
+
+        Queue<Integer> q = new LinkedList<>();
+        for(int i=start; i<vertices; i++) {
+            if(indegree[i] == 0) q.add(i);
+        }
+
+        while(!q.isEmpty()) {
+            int node = q.poll();
+            System.out.print(node + " ");
+            for(int neighbour : adjList.get(node)) {
+                indegree[neighbour]--;
+                if(indegree[neighbour] == 0) q.add(neighbour);
+            }
+        }
+    }
+
+    void stackDFS(int s, Stack<Integer> stack, boolean[] visited) {
+        visited[s] = true;
+        for(int neighbour : adjList.get(s)) {
+            if(!visited[neighbour]) {
+                stackDFS(neighbour, stack, visited);
+            }
+        }
+        stack.push(s);
+    }
+
+    void transDFS(int s, boolean[] visited) {
+        visited[s] = true;
+        for(int neighbour : transList.get(s)) {
+            if(!visited[neighbour]) {
+                transDFS(neighbour, visited);
+            }
+        }
+    }
+
+    int scc(boolean isOneIndex) {
+        boolean visited [] = new boolean[vertices];
+        Stack<Integer> stack = new Stack<>();
+        int start = isOneIndex ? 1 : 0;
+        for(int i=start; i<vertices; i++) {
+            if(!visited[i]) {
+                stackDFS(i, stack, visited);
+            }
+        }
+        
+        for(int u=start; u<vertices; u++) {
+            visited[u] = false;
+            for(int neighbour : adjList.get(u)) {
+                addTransEdge(neighbour, u);
+            }
+        }
+        
+        int sscCount = 0;
+        while(!stack.isEmpty()) {
+            int node = stack.pop();
+            if(!visited[node]) {
+                transDFS(node, visited);
+                sscCount++;
+            }
+        }
+        return sscCount;
+    }
+
+    void bridgeDFS(int s, int parent, boolean[] visited, int[] time, int[] low, ArrayList<List<Integer>> bridges) {
+        visited[s] = true;
+        time[s] = low[s] = timer;
+        timer++;
+        for(int neighbour : adjList.get(s)) {
+            if(neighbour == parent) continue;
+            if(!visited[neighbour]) {
+                bridgeDFS(neighbour, s, visited, time, low, bridges);
+                low[s] = Math.min(low[s], low[neighbour]);
+                if(low[neighbour] > time[s]) {
+                    bridges.add(Arrays.asList(neighbour, s));
+                }
+            } else {
+                low[s] = Math.min(low[s], low[neighbour]);
+            }
+        }
+    }
+
+    ArrayList<List<Integer>> bridgeFind(int s) {        
+        boolean visited [] = new boolean[vertices];
+        int time [] = new int[vertices];
+        int low [] = new int[vertices];
+        ArrayList<List<Integer>> bridges = new ArrayList<>();
+        bridgeDFS(s, -1, visited, time, low, bridges);
+        return bridges;
+    }
+
+    void articDFS(int s, int parent, boolean[] visited, int[] time, int[] low, int[] mark) {
+        visited[s] = true;
+        time[s] = low[s] = timer;
+        timer++;
+        int children = 0;
+        for(int neighbour : adjList.get(s)) {
+            if(neighbour == parent) continue;
+            if(!visited[neighbour]) {
+                articDFS(neighbour, s, visited, time, low, mark);
+                low[s] = Math.min(low[s], low[neighbour]);
+                if(low[neighbour] >= time[s] && parent != -1) {
+                    mark[s] = 1;
+                }
+                children++; 
+            } else {
+                low[s] = Math.min(low[s], time[neighbour]);
+            }
+        }
+        if(parent == -1 && children > 1) {
+            mark[s] = 1;
+        }
+    }
+
+    ArrayList<Integer> articFind(int s, boolean isOneIndex) {
+        int start = isOneIndex ? 1 : 0;
+        boolean visited[] = new boolean[vertices];
+        int time[] = new int[vertices];
+        int low[] = new int[vertices];
+        int mark[] = new int[vertices];
+        articDFS(s, -1, visited, time, low, mark);
+        ArrayList<Integer> ans = new ArrayList<>();
+        for(int i=start; i<vertices; i++) {
+            if(mark[i] == 1) ans.add(i);
+        }
+        if(ans.size() == 0) ans.add(-1);
+        return ans;
+    }   
+}
+
+public class test {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int m = sc.nextInt();
+        int tempEdges [][] = new int[m][2];
+        boolean isOneIndex = true;
+        for(int i=0; i<m; i++) {
+            int u = sc.nextInt();
+            int v = sc.nextInt();
+            tempEdges[i][0] = u;
+            tempEdges[i][1] = v;
+            if(u==0 || v==0) isOneIndex = false;
+        }
+        int size = isOneIndex ? n+1 : n;
+        GraphBuild g = new GraphBuild(size);
+        for(int edge[] : tempEdges) g.addEdge(edge[0], edge[1]);
+        int source = sc.nextInt();
+        ArrayList<Integer> points = g.articFind(source, isOneIndex);
+        for(int i=0; i<points.size(); i++) System.out.print(points.get(i) + " ");
+        System.out.println();
+        sc.close();
+    }
+}

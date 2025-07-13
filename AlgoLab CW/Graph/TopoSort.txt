@@ -1,0 +1,135 @@
+package Graph;
+import java.util.*;
+//import java.io.*;
+
+class GraphBuild {
+    private int vertices;
+    ArrayList<List<Integer>> adjList;
+    GraphBuild(int vertices) {
+        this.vertices = vertices;
+        this.adjList = new ArrayList<>(vertices);
+        for(int i=0; i<vertices; i++) adjList.add(new ArrayList<>());
+    }
+
+    void addEdge(int u, int v) {
+        adjList.get(u).add(v);
+        //adjList.get(v).add(u);
+    }
+
+    void printGraph(boolean isOneIndex) {
+        int start = isOneIndex ? 1 : 0;
+        for(int i=start; i<vertices; i++) {
+            System.out.print(i + " -> ");
+            for(int j : adjList.get(i)) {
+                System.out.print(j + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    ArrayList<Integer> BFS(int s) {
+        ArrayList<Integer> bfstrav = new ArrayList<>();
+        Queue<Integer> q = new LinkedList<>();
+
+        q.add(s);
+        visited[s] = true;
+        while(!q.isEmpty()) {
+            int node = q.poll();
+            bfstrav.add(node);
+            for(int neighbour : adjList.get(node)) {
+                if(!visited[neighbour]) {
+                    q.add(neighbour);
+                    visited[neighbour] = true;
+                }
+            }
+        }
+        return bfstrav;
+    }
+
+    void DFS(int s, ArrayList<Integer> dfstrav) {
+        visited[s] = true;
+        dfstrav.add(s);
+        for(int neighbour : adjList.get(s)) {
+            if(!visited[neighbour]) {
+                DFS(neighbour, dfstrav);
+            }
+        }
+    }
+
+    void DFSforTopoSort(int s, Stack<Integer> sorted, boolean[] visited) {
+        visited[s] = true;
+        for(int neighbour : adjList.get(s)) {
+            if(!visited[neighbour]) {
+                DFSforTopoSort(neighbour, sorted, visited);
+            }
+        }
+        sorted.push(s);
+    }
+
+    ArrayList<Integer> DFSUtil(boolean isOneIndex) {
+        ArrayList<Integer> dfstrav = new ArrayList<>();
+        int start = isOneIndex ? 1 : 0;
+        for(int i=start; i<vertices; i++) {
+            if(!visited[i]) DFS(i, dfstrav);
+        }
+        return dfstrav;
+    }
+
+    Stack<Integer> topoSortUtil(boolean isOneIndex) {
+        boolean[] visited = new boolean[vertices];
+        int start = isOneIndex ? 1 : 0;
+        Stack<Integer> sorted = new Stack<>();
+        for(int i=start; i<vertices; i++) {
+            if(!visited[i]) {
+                DFSforTopoSort(i, sorted, visited);
+            }
+        }
+        return sorted;
+    }
+
+    void kahnTopoSort(boolean isOneIndex) {
+        int[] indegree = new int[vertices];
+        int start = isOneIndex ? 1 : 0;
+        for(int i=start; i<vertices; i++) {
+            for(int neighbour : adjList.get(i)) {
+                indegree[neighbour]++;
+            }
+        }
+
+        Queue<Integer> q = new LinkedList<>();
+        for(int i=start; i<vertices; i++) {
+            if(indegree[i] == 0) q.add(i);
+        }
+
+        while(!q.isEmpty()) {
+            int node = q.poll();
+            System.out.print(node + " ");
+            for(int neighbour : adjList.get(node)) {
+                indegree[neighbour]--;
+                if(indegree[neighbour] == 0) q.add(neighbour);
+            }
+        }
+    }
+}
+
+public class test {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int m = sc.nextInt();
+        int tempEdges [][] = new int[m][2];
+        boolean isOneIndex = true;
+        for(int i=0; i<m; i++) {
+            int u = sc.nextInt();
+            int v = sc.nextInt();
+            tempEdges[i][0] = u;
+            tempEdges[i][1] = v;
+            if(u==0 || v==0) isOneIndex = false;
+        }
+        int size = isOneIndex ? n+1 : n;
+        GraphBuild g = new GraphBuild(size);
+        for(int edge[] : tempEdges) g.addEdge(edge[0], edge[1]);
+        g.kahnTopoSort(isOneIndex);
+        sc.close();
+    }
+}

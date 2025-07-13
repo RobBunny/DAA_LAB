@@ -1,0 +1,127 @@
+package Graph;
+import java.util.*;
+
+class Pair {
+    int node;
+    int weight;
+    Pair(int node, int weight) {
+        this.node = node;
+        this.weight = weight;
+    }
+}
+
+class GraphBuild {
+    int vertices;
+    ArrayList<ArrayList<Pair>> adjList;
+    ArrayList<int[]> edgeList;
+
+    GraphBuild(int vertices) {
+        this.vertices = vertices;
+        this.adjList = new ArrayList<>(vertices);
+        this.edgeList = new ArrayList<>();
+        for(int i = 0; i < vertices; i++) adjList.add(new ArrayList<>());
+    }
+
+    void addEdge(int u, int v, int wt) {
+        adjList.get(u).add(new Pair(v, wt)); // directed
+        edgeList.add(new int[]{u, v, wt});
+    }
+
+    boolean bellmanFord(int[] h) {
+        Arrays.fill(h, Integer.MAX_VALUE);
+        h[vertices - 1] = 0;
+        for(int i = 0; i < vertices - 1; i++) {
+            for(int[] edge : edgeList) {
+                int u = edge[0], v = edge[1], wt = edge[2];
+                if(h[u] != Integer.MAX_VALUE && h[u] + wt < h[v]) {
+                    h[v] = h[u] + wt;
+                }
+            }
+        }
+
+        for(int[] edge : edgeList) {
+            int u = edge[0], v = edge[1], wt = edge[2];
+            if(h[u] != Integer.MAX_VALUE && h[u] + wt < h[v]) {
+                return false; // negative cycle
+            }
+        }
+        return true;
+    }
+
+    void johnsonsAlgorithm() {
+        // Step 1: Add dummy vertex with 0-weight edges
+        for(int i = 0; i < vertices - 1; i++) {
+            edgeList.add(new int[]{vertices - 1, i, 0});
+        }
+
+        int[] h = new int[vertices];
+        if(!bellmanFord(h)) {
+            System.out.println("Negative weight cycle detected!");
+            return;
+        }
+
+        // Step 2: Reweight the edges
+        ArrayList<ArrayList<Pair>> newAdj = new ArrayList<>();
+        for(int i = 0; i < vertices - 1; i++) newAdj.add(new ArrayList<>());
+        for(int[] edge : edgeList) {
+            int u = edge[0], v = edge[1], wt = edge[2];
+            if(u == vertices - 1) continue;
+            int newWt = wt + h[u] - h[v];
+            newAdj.get(u).add(new Pair(v, newWt));
+        }
+
+        // Step 3: Dijkstra from each vertex
+        for(int src = 0; src < vertices - 1; src++) {
+            PriorityQueue<Pair> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a.weight));
+            int[] dist = new int[vertices];
+            Arrays.fill(dist, Integer.MAX_VALUE);
+            dist[src] = 0;
+            pq.add(new Pair(src, 0));
+            while(!pq.isEmpty()) {
+                Pair p = pq.poll();
+                for(Pair nei : newAdj.get(p.node)) {
+                    int v = nei.node;
+                    int w = nei.weight;
+                    if(dist[p.node] + w < dist[v]) {
+                        dist[v] = dist[p.node] + w;
+                        pq.add(new Pair(v, dist[v]));
+                    }
+                }
+            }
+
+            // Print real distances (undo reweighting)
+            System.out.println("Shortest paths from " + src + ":");
+            for(int i = 0; i < vertices - 1; i++) {
+                if(dist[i] == Integer.MAX_VALUE) System.out.println("to " + i + " = INF");
+                else System.out.println("to " + i + " = " + (dist[i] + h[i] - h[src]));
+            }
+            System.out.println();
+        }
+    }
+}
+
+public class test {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt(); // number of vertices
+        int m = sc.nextInt(); // number of edges
+        int[][] tempEdges = new int[m][3];
+        boolean isOneIndex = true;
+        for(int i = 0; i < m; i++) {
+            int u = sc.nextInt();
+            int v = sc.nextInt();
+            int wt = sc.nextInt();
+            if(u == 0 || v == 0) isOneIndex = false;
+            tempEdges[i][0] = u;
+            tempEdges[i][1] = v;
+            tempEdges[i][2] = wt;
+        }
+
+        int size = isOneIndex ? n + 2 : n + 1; // +1 for dummy node
+        GraphBuild g = new GraphBuild(size);
+        for(int[] edge : tempEdges) g.addEdge(edge[0], edge[1], edge[2]);
+
+        g.johnsonsAlgorithm();
+        sc.close();
+    }
+}
