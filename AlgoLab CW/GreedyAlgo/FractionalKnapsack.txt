@@ -1,0 +1,43 @@
+package GreedyAlgo;
+import java.util.*;
+
+class Pair {
+    int weight;
+    int value;
+    Pair(int weight, int value) {
+        this.weight = weight;
+        this.value = value;
+    }
+}
+
+public class test {
+    public static void FractionalKnapsack(Pair p[], int n, int W) {
+        Arrays.sort(p, (a, b) -> (b.value/b.weight) - (a.value/a.weight));
+        int price = 0;
+        for(int i=0; i<n; i++) {
+            if(W == 0) break;
+            if(p[i].weight <= W) {
+                price += p[i].value;
+                W -= p[i].weight;
+            } else {
+                price += p[i].value*W/p[i].weight;
+                W = 0;
+            }
+        }
+        System.out.println(price);
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        Pair p[] = new Pair[n];
+        for(int i=0; i<n; i++) {
+            int weight = sc.nextInt();
+            int value = sc.nextInt();
+            p[i] = new Pair(weight, value);
+        }
+        int W = sc.nextInt();
+        FractionalKnapsack(p, n, W);
+        sc.close();
+    }
+}

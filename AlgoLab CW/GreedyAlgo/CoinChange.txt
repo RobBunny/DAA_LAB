@@ -1,0 +1,29 @@
+package GreedyAlgo;
+import java.util.*;
+
+public class test {
+    public static void CoinChange(int n) {
+        int coins[] = {1000, 500, 100, 50, 20, 10, 5, 2, 1};
+        int count = 0;
+        ArrayList<Integer> ans = new ArrayList<>();
+        for(int i=0; i<coins.length; i++) {
+            while(n>=coins[i]) {
+                count++;
+                n -= coins[i];
+                ans.add(coins[i]);
+            }
+        }
+        System.out.println(count);
+        for(int x : ans) {
+            System.out.print(x + " ");
+        }
+        System.out.println();
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        CoinChange(n);
+        sc.close();
+    }
+}
