@@ -1,0 +1,63 @@
+import java.util.*;
+
+class Graphbuild {
+    private int vertices;
+    ArrayList<ArrayList<Integer>> adjList;
+    Graphbuild(int vertices) {
+        this.vertices = vertices;
+        this.adjList = new ArrayList<>(vertices);
+        for(int i=0; i<vertices; i++) adjList.add(new ArrayList<>());
+    }
+
+    void addEdges(int u, int v) {
+        adjList.get(u).add(v);
+        adjList.get(v).add(u);
+    }
+
+    int BFS(int k, int l) {
+        boolean[] visited = new boolean[vertices];
+        Queue<int[]> queue = new LinkedList<>();
+        int cities = 1;
+        queue.add(new int[]{l, 0});
+        visited[l] = true;
+        while(!queue.isEmpty()) {
+            int current[] = queue.poll();
+            int u = current[0];
+            int distance = current[1];
+            for(int neighbour : adjList.get(u)) {
+                if(!visited[neighbour] && distance < k) {
+                    queue.add(new int[]{neighbour, distance+1});
+                    visited[neighbour] = true;
+                    cities++;
+                    if(cities == vertices) return cities;
+                    //System.out.println(k + " " + cities);
+                }
+            }
+        }
+        return cities;
+    }
+}
+public class Scc{
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int m = sc.nextInt();
+        int k = sc.nextInt();
+        int l = sc.nextInt();
+        boolean isOneTdx = true;
+        int [][] tempEdges = new int[m][2];
+        for(int i=0; i<m; i++) {
+            int a = sc.nextInt();
+            int b = sc.nextInt();
+            tempEdges[i][0] = a;
+            tempEdges[i][1] = b;
+            if(a==0 || b==0) isOneTdx = false;
+        }
+        int size = isOneTdx ? n+1 : n;
+        Graphbuild g = new Graphbuild(size);
+        for(int edge[] : tempEdges) g.addEdges(edge[0], edge[1]);
+        int ans = g.BFS(k, l);
+        System.out.println(ans);
+        sc.close();    
+    }
+}

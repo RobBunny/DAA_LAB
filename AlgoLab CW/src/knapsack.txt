@@ -1,0 +1,42 @@
+package Graph;
+import java.util.*;
+
+class Pair {
+    int x, y;
+    public Pair(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+}
+
+public class knapsack {
+    public static int knapsack(Pair[] p, int w) {
+        Arrays.sort(p, (a, b) -> Double.compare((double)b.x/b.y, (double)a.x/a.y));
+        int sum = 0;
+        for(int i=0; i<p.length; i++) {
+            if(w >= p[i].y) {
+                sum += p[i].x;
+                w -= p[i].y;
+            } else {
+                sum += p[i].x * w / p[i].y;
+                w = 0;
+                break;
+            }
+        }
+        return sum;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        Pair[] p = new Pair[3];
+        int n = sc.nextInt();
+        for(int i=0; i<n; i++) {
+            int x = sc.nextInt();
+            int y = sc.nextInt();
+            p[i] = new Pair(x, y);
+        }
+        int w = sc.nextInt();
+        System.out.println(knapsack(p, w));
+        sc.close();
+    }
+}

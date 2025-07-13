@@ -1,0 +1,99 @@
+import java.util.*;
+
+class Graphbuild {
+    private int vertices;
+    ArrayList<ArrayList<Integer>> adjList;
+    ArrayList<ArrayList<Integer>> transList;
+    Graphbuild(int vertices) {
+        this.vertices = vertices;
+        this.adjList = new ArrayList<>(vertices);
+        this.transList = new ArrayList<>(vertices);
+        for(int i=0; i<vertices; i++) {
+            adjList.add(new ArrayList<>());
+            transList.add(new ArrayList<>());
+        }
+    }
+
+    void addEdges(int u, int v) {
+        adjList.get(u).add(v);
+    }
+
+    void addTransEdges(int u, int v) {
+        transList.get(u).add(v);
+    }
+
+    void stackDFS(int s, boolean[] visited, Stack<Integer> stack) {
+        visited[s] = true;
+        for(int neighbour : adjList.get(s)) {
+            if(!visited[neighbour]) {
+                stackDFS(neighbour, visited, stack);
+            }
+        }
+        stack.push(s);
+    }
+
+    void transDFS(int s, boolean[] visited, int[] kingdom, int ct) {
+        visited[s] = true;
+        kingdom[s] = ct;
+        for(int neighbour : transList.get(s)) {
+            if(!visited[neighbour]) {
+                transDFS(neighbour, visited, kingdom, ct);
+            }
+        }
+    }
+
+    void scc(boolean isOneTdx) {
+        boolean[] visited = new boolean[vertices];
+        Stack<Integer> stack = new Stack<>();
+        int start = isOneTdx ? 1 : 0;
+        for (int i = start; i < vertices; i++) {
+            if (!visited[i]) {
+                stackDFS(i, visited, stack);
+            }
+        }
+
+        for(int i=start; i<vertices; i++) {
+            visited[i] = false;
+            for(int neighbour : adjList.get(i)) {
+                addTransEdges(neighbour, i);
+            }
+        }
+
+        int count = 0;
+        int[] kingdom = new int[vertices];
+        while(!stack.isEmpty()) {
+            int u = stack.pop();
+            if(!visited[u]) {
+                transDFS(u, visited, kingdom, count+1);
+                count++;
+                System.out.println("SCC found: " + count);
+            }
+        }
+        System.out.println(count);
+        for(int i=start; i<kingdom.length; i++) {
+            System.out.print(kingdom[i] + " ");
+        }
+        System.out.println();
+    }
+}
+public class Scc{
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int m = sc.nextInt();
+        boolean isOneTdx = true;
+        int [][] tempEdges = new int[m][2];
+        for(int i=0; i<m; i++) {
+            int a = sc.nextInt();
+            int b = sc.nextInt();
+            tempEdges[i][0] = a;
+            tempEdges[i][1] = b;
+            if(a==0 || b==0) isOneTdx = false;
+        }
+        int size = isOneTdx ? n+1 : n;
+        Graphbuild g = new Graphbuild(size);
+        for(int edge[] : tempEdges) g.addEdges(edge[0], edge[1]);
+        g.scc(isOneTdx);
+        sc.close();    
+    }
+}

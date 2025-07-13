@@ -1,0 +1,137 @@
+#PSEUDOTERNARY ENCODING
+def plot_signal(encoded_signal):
+  time = range(len(encoded_signal))
+  plt.step(time, encoded_signal, where = 'post')
+  plt.xlabel('Time')
+  plt.ylabel('Signal')
+  plt.title('Pseudoternary Input')
+  plt.grid(True)
+  plt.show()
+
+plot_signal(bits_list)
+
+def pseudo_encoding(given_bits):
+  encoded_signal = []
+  count = 0
+  for bit in given_bits:
+    if bit == '0':
+      if count%2==0:
+        encoded_signal.append(1)
+      else:
+        encoded_signal.append(-1)
+      count += 1
+    else:
+      encoded_signal.append(0)
+  return encoded_signal
+
+encoded = pseudo_encoding(given_bits)
+print(f"Encoded Signal: {encoded}")
+
+def plot_encoded_signal(encoded_data):
+  time = range(len(encoded_data))
+  plt.step(time, encoded_data, where='post')
+  plt.xlabel('Time')
+  plt.ylabel('Voltage')
+  plt.title('Pseudoternary Encoding')
+  plt.grid(True)
+  plt.show()
+
+plot_encoded_signal(encoded)
+
+def pseudo_decoding(encoded):
+  decoded_data = ''
+  for bit in encoded:
+    if bit == 1:
+      decoded_data += '0'
+    elif bit == -1:
+      decoded_data += '0'
+    else:
+      decoded_data += '1'
+  return decoded_data
+
+decoded = [int(char) for char in pseudo_decoding(encoded)]
+print(f"Decoded Signal: {decoded}")
+
+def plot_decoded_data(encoded_signal):
+  time = range(len(encoded_signal))
+  plt.step(time, encoded_signal, where='post')
+  plt.xlabel('Time')
+  plt.ylabel('Signal')
+  plt.title('Pseudoternary Decoding')
+  plt.grid(True)
+  plt.show()
+
+plot_decoded_data(decoded)
+
+####################################################
+
+#MULTI LEVEL LINE ENCODING
+
+def plot_signal(encoded_signal):
+  time = range(len(encoded_signal))
+  plt.step(time, encoded_signal, where = 'post')
+  plt.xlabel('Time')
+  plt.ylabel('Signal')
+  plt.title('MLT3 Input')
+  plt.grid(True)
+  plt.show()
+
+plot_signal(bits_list)
+
+def mlt3_encoding(given_bits):
+  encoded_signal = []
+  prev_state = 0
+  level = 1
+  for bit in given_bits:
+    if bit == '1':
+      if level == 1:
+        prev_state = 1
+        level = 2
+      elif level == 2:
+        prev_state = 0
+        level = 3
+      elif level == 3:
+        prev_state = -1
+        level = 4
+      elif level == 4:
+        prev_state = 0
+        level = 1
+    encoded_signal.append(prev_state)
+  return encoded_signal
+      
+encoded = mlt3_encoding(given_bits)
+print(f"Encoded Signal: {encoded}")
+
+def plot_encoded_signal(encoded_data):
+  time = range(len(encoded_data))
+  plt.step(time, encoded_data, where='post')
+  plt.xlabel('Time')
+  plt.ylabel('Signal')
+  plt.title('MLT3 Encoding')
+  plt.grid(True)
+  plt.show()
+
+plot_encoded_signal(encoded)
+
+def mlt3_decoding(encoded):
+  decoded_data = '1'
+  for i in range(1, len(encoded)):
+    if encoded[i] == encoded[i-1]:
+      decoded_data += '0'
+    else:
+      decoded_data += '1'
+  return decoded_data
+
+decoded = [int(char) for char in mlt3_decoding(encoded)]
+print(f"Decoded Signal: {decoded}")
+
+def plot_decoded_data(encoded_signal):
+  time = range(len(encoded_signal))
+  plt.step(time, encoded_signal, where='post')
+  plt.xlabel('Time')
+  plt.ylabel('Signal')
+  plt.title('MLT3 Decoding')
+  plt.grid(True)
+  plt.show()
+
+plot_decoded_data(decoded)

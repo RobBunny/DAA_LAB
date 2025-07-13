@@ -1,0 +1,65 @@
+import java.util.Scanner;
+
+class Node {
+    int val;
+    Node left, right;
+
+    Node(int val) {
+        this.val = val;
+        left = right = null;
+    }
+}
+
+public class LCA {
+
+    public static Node insert(Node root, int num) {
+        if(root == null) return new Node(num);
+        if(num > root.val) root.right = insert(root.right, num);
+        else root.left = insert(root.left, num);
+        return root; 
+    }
+
+    public static boolean search(Node cur, int key) {
+        if(cur == null) {
+            return false;
+        }
+        if(cur.val == key) {
+            return true;
+        }
+        else if(cur.val > key) {
+            return search(cur.left, key);
+        }
+        else {
+            return search(cur.right, key);
+        }    
+    }
+
+    public static void inorder_traversal(Node root) {
+        if(root == null) return;
+        inorder_traversal(root.left);
+        System.out.print(root.val + " ");
+        inorder_traversal(root.right);
+    }
+
+    public static Node ancestor(Node cur, int val1, int val2) {
+        if(cur == null) return null;
+        if(cur.val > val1 && cur.val > val2) return ancestor(cur.left, val1, val2);
+        else if(cur.val < val1 && cur.val < val2) return ancestor(cur.right, val1, val2);
+        return cur;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        Node root = null;
+        int n = sc.nextInt();
+        for(int i=0; i<n; i++) {
+            int a = sc.nextInt();
+            root = insert(root, a);
+        }
+        int n1 = sc.nextInt();
+        int n2 = sc.nextInt();
+        Node ans = ancestor(root, n1, n2);
+        System.out.println(ans.val);
+        sc.close();
+    }
+}

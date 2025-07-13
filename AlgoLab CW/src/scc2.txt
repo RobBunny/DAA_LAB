@@ -1,0 +1,87 @@
+import java.util.*;
+
+class Graphbuild {
+    private int vertices;
+    private int [][] adjMatrix;
+    private int [][] transMatrix;
+    Graphbuild(int vertices) {
+        this.vertices = vertices;
+        this.adjMatrix = new int[vertices][vertices];
+        this.transMatrix = new int[vertices][vertices];
+        for(int i=0; i<vertices; i++) {
+            for(int j=0; j<vertices; j++) {
+                adjMatrix[i][j] = 0;
+                transMatrix[i][j] = 0;
+            }
+        }
+    }
+
+    void addEdges(int u, int v, int w) {
+        adjMatrix[u][v] = w;
+        transMatrix[v][u] = w;
+    }
+
+    //void addTransEdges(int u, int v, int w) {
+    //    transMatrix[u][v] = w;
+    //}
+
+    int RoadRedirection(boolean isOneIdx) {
+        int start = isOneIdx ? 1 : 0;
+        int firstRoad = 0;
+        int secondRoad = 0;
+        int count = 0;
+        int u = start;
+        boolean[] visited = new boolean[vertices];
+        while(count < vertices) {
+            visited[u] = true;
+            for(int v=start; v<vertices; v++) {
+                if(adjMatrix[u][v] != 0 && !visited[v]) {
+                    firstRoad += adjMatrix[u][v];
+                    u = v;
+                    break;
+                }
+            }
+            count++;
+        }
+
+        for(int i=start; i<vertices; i++) visited[i] = false;
+        count = 0;
+        u = start;
+        while(count < vertices) {
+            visited[u] = true;
+            for(int v=start; v<vertices; v++) {
+                if(transMatrix[u][v] != 0 && !visited[v]) {
+                    secondRoad += transMatrix[u][v];
+                    u = v;
+                    break;
+                }
+            }
+            count++;
+        }
+
+        return Math.min(firstRoad, secondRoad);
+    }
+}
+public class Scc{
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int R = sc.nextInt();
+        int a, b, c;
+        boolean isOneTdx = true;
+        int [][] tempEdges = new int[R][3];
+        for(int i=0; i<R; i++) {
+            a = sc.nextInt();
+            b = sc.nextInt();
+            c = sc.nextInt();
+            if(a==0 || b==0) isOneTdx = false;
+            tempEdges[i][0] = a;
+            tempEdges[i][1] = b;
+            tempEdges[i][2] = c;
+        }
+        int size = isOneTdx ? R+1 : R;
+        Graphbuild g = new Graphbuild(size);
+        for(int edge[] : tempEdges) g.addEdges(edge[0], edge[1], edge[2]);
+        System.out.println(g.RoadRedirection(isOneTdx));
+        sc.close();    
+    }
+}

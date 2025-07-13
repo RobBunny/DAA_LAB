@@ -1,0 +1,81 @@
+import java.util.*;
+
+class Graph {
+    int V;
+    List<List<Integer>> adj;
+
+    Graph(int n) {
+        this.V = n;
+        adj = new ArrayList<>(); // Suppress unchecked warning
+        for (int i = 0; i < n; i++) {
+            adj.add(new ArrayList<>());
+        }
+    }
+
+    void addEdge(int u, int v) {
+        if (u < V && v < V && v > 0 && u > 0) {
+            adj.get(u).add(v);
+            // adj.get(v).add(u);
+        }
+    }
+
+    public int path(int s, int n) {
+        if (s == n)
+            return 0;
+
+        Queue<Integer> q = new LinkedList<>();
+        int[] isVisited = new int[V];
+        for (int i = 0; i < V; i++) {
+            isVisited[i] = 0;
+        }
+
+        q.add(s);
+        isVisited[s] = 1;
+        int count = 0;
+
+        while (!q.isEmpty()) {
+            int sz = q.size();
+            count++;
+            for (int i = 0; i < sz; i++) {
+                int current = q.poll();
+                for (Integer neighbour : adj.get(current)) {
+                    if (isVisited[neighbour] == 0) {
+                        if (neighbour == n)
+                            return count;
+                        isVisited[neighbour] = 1;
+                        q.add(neighbour);
+                    }
+                }
+            }
+        }
+        return -1;
+    }
+}
+
+public class Lab_1 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int m = sc.nextInt();
+
+        Graph g = new Graph(n + 1);
+        for (int i = 0; i < m; i++) {
+            int u = sc.nextInt();
+            int v = sc.nextInt();
+            g.addEdge(u, v);
+        }
+
+        int x = sc.nextInt();
+
+        System.out.println(g.adj.get(x).size());
+
+        for (int i = 1; i < n + 1; i++) {
+            if (i == 1)
+                System.out.print(g.path(x, i));
+            else
+                System.out.print(" " + g.path(x, i));
+        }
+        System.out.println();
+        sc.close();
+    }
+}

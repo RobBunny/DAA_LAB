@@ -1,0 +1,63 @@
+import java.util.Scanner;
+
+class Node {
+    int val;
+    Node left, right;
+
+    Node(int val) {
+        this.val = val;
+        left = right = null;
+    }
+}
+
+public class BST {
+
+    public static Node insert(Node root, int num) {
+        if(root == null) return new Node(num);
+        if(num > root.val) root.right = insert(root.right, num);
+        else root.left = insert(root.left, num);
+        return root; 
+    }
+
+    public static boolean search(Node cur, int key) {
+        if(cur == null) {
+            return false;
+        }
+        if(cur.val == key) {
+            return true;
+        }
+        else if(cur.val > key) {
+            return search(cur.left, key);
+        }
+        else {
+            return search(cur.right, key);
+        }    
+    }
+
+    public static void inorder_traversal(Node root) {
+        if(root == null) return;
+        inorder_traversal(root.left);
+        System.out.print(root.val + " ");
+        inorder_traversal(root.right);
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        Node root = null;
+        int n = sc.nextInt();
+        for(int i=0; i<n; i++) {
+            int a = sc.nextInt();
+            root = insert(root, a);
+        }
+        int value = sc.nextInt();
+        if(search(root, value)) {
+            System.out.println(value + " found in the BST");
+        }
+        else {
+            System.out.println(value + " not found in the BST");
+        }
+        inorder_traversal(root);
+        System.out.println();
+        sc.close();
+    }
+}
